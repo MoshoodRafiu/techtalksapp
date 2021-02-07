@@ -1,12 +1,5 @@
 <template>
     <div>
-        <div id="navbar">
-            <img src="../assets/logo.svg" alt="logo">
-            <ul class="nav-links">
-                <li><a href="#">Register</a></li>
-                <li><a href="#">Login</a></li>
-            </ul>
-        </div>
         <div id="chatbox">
             <div class="chat-title">
                 <span>TechTalks Chat Room</span>
@@ -70,7 +63,12 @@
 </template>
 <script>
     import io from 'socket.io-client';
-    let socket = io('https://ayocrypto-chat.herokuapp.com');
+    let socket = io('https://ayocrypto-chat.herokuapp.com', {
+        query: {
+            roomId: 'JS',
+            username: 'Meezy'
+        }
+    });
     export default {
         name: 'Chat',
         data: function () {
