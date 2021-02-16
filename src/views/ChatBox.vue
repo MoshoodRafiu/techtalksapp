@@ -127,7 +127,7 @@
     .message.user{
         margin-left: auto;
         border-radius: 15px 15px 0 15px;
-        background: #f38626;
+        background: #b6b5b5;
     }
     .message.guest{
         margin-right: auto;

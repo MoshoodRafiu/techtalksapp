@@ -8,7 +8,7 @@
              <ul class="nav-links">
                 <li v-if="!$store.getters.loggedIn" @click="toggleForm('register')">Register</li>
                 <li v-if="!$store.getters.loggedIn" @click="toggleForm('login')">Login</li>
-                <li v-if="$store.getters.loggedIn" @click="logUserOut()"><span class="fa fa-user"></span> {{ $store.state.user.username ? $store.state.user.username : '' }}</li>
+                <li v-if="$store.getters.loggedIn"><span class="fa fa-user"></span> {{ $store.state.user.username ? $store.state.user.username : '' }}</li>
                 <li v-if="$store.getters.loggedIn" @click="logUserOut()" :class="{'processing': processing}">
                     <span v-if="!processing">Logout</span>
                     <span v-if="processing">Logging out..</span>
@@ -54,7 +54,9 @@ export default {
                 this.$store.dispatch('logUserOut')
                     .then(() => {
                         this.processing = false;
-                        this.$router.push({name: 'home'})
+                        if (this.$route.name !== 'home'){
+                            this.$router.push({name: 'home'})
+                        }
                     })
                     .catch(() => {
                         this.processing = false;

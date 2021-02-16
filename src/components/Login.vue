@@ -50,10 +50,10 @@ export default {
                                 this.redirectToChat();
                             }
                         })
-                        .catch(err => {
+                        .catch(() => {
                             this.processing = false;
                             this.formHasError = true;
-                            this.errorMessage = err.response.data.message ? err.response.data.message : 'An error occured';
+                            this.errorMessage = 'An error occured';
                         });
                 }else{
                     this.formHasError = true;
