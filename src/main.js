@@ -15,14 +15,10 @@ router.beforeEach((to, from, next) => {
     // this route requires auth, check if logged in
     // if not, redirect to login page.
     if (!store.getters.loggedIn) {
-      if (from.name === 'home') {
-        router.back();
-      }else{
-        next({
-          name: 'home',
-        })
-      }
-    } else {
+      next({
+        name: 'home',
+      })
+    }else {
       next()
     }
   }else {

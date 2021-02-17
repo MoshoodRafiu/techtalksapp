@@ -6,7 +6,8 @@
                     <h1>Welcome to TechTalks</h1>
                 </div>
                 <div class="inputs">
-                    <button @click="$router.push({name: 'chat'})">Current Gists <span class="fa ml-2 fa-comments"></span></button>
+                    <router-link to="/chat" tag="button">Current Gists <span class="fa ml-2 fa-comments"></span></router-link>
+                    <!-- <button @click="$router.push({name: 'chat'})"> <span class="fa ml-2 fa-comments"></span></button> -->
                     <button v-if="!$store.getters.loggedIn">I'm New Here <span class="fa ml-2 fa-arrow-right"></span></button>
                     <button @click="$router.push({name: 'chat'})" v-if="$store.getters.loggedIn">Join As <span class="text-capitalize">{{ $store.state.user.username ? $store.state.user.username : '' }}</span><span class="fa ml-2 fa-user"></span></button>
                 </div>
