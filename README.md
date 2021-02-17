@@ -1,5 +1,7 @@
 # lichatapp
 
+live url https://techtalks.netlify.app/
+ 
 ## Project setup
 ```
 npm install
