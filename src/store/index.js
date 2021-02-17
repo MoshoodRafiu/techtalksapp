@@ -8,11 +8,15 @@ export default new Vuex.Store({
   state: {
     token: localStorage.getItem('access_token') || null,
     user: JSON.parse(localStorage.getItem('user')) || null,
-    processing: false
+    processing: false,
+    messages: []
   },
   getters: {
     loggedIn: state => {
       return state.token !== null;
+    },
+    getUser: state => {
+      return state.user;
     }
   },
   mutations: {
@@ -30,9 +34,21 @@ export default new Vuex.Store({
     },
     setProcessing: (state, payload) => {
       state.processing = payload;
+    },
+    initMessages: (state, payload) => {
+      state.messages = payload;
+    },
+    pushNewMessage: (state, payload) => {
+      state.messages.push(payload);
     }
   },
   actions: {
+    pushNewMessage: (context, payload) => {
+      context.commit('pushNewMessage', payload);
+    },
+    initMessages: (context, payload) => {
+      context.commit('initMessages', payload);
+    },
     setProcessing: (context, payload) => {
       context.commit('setProcessing', payload);
     },

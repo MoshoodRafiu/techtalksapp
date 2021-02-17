@@ -3,8 +3,10 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 import axios from 'axios'
+import VueSkeletonLoader from 'skeleton-loader-vue';
 
 Vue.config.productionTip = false
+Vue.component('vue-skeleton-loader', VueSkeletonLoader);
 
 axios.defaults.baseURL = 'http://localhost:8000/api';
 

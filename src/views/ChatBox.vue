@@ -9,87 +9,111 @@
                 </div>
             </div>
             <div class="messages">
-                <div class="message-wrapper">
-                    <div class="message guest">
-                        <div class="message-text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolore, pariatur?</div>
-                        <div class="sent-time">12:45 AM</div>
+                <div v-if="!loading">
+                    <div v-for="message in $store.state.messages" :key="message.message + Math.random()" class="message-wrapper">
+                        <div class="message" :class="{'user': ($store.getters.loggedIn && $store.state.user.username === message.sender), 'guest': ($store.getters.loggedIn && $store.state.user.username !== message.sender)}">
+                            <div class="sender">{{ message.sender }}</div>
+                            <div class="message-text">{{ message.message }}</div>
+                            <div class="sent-time">{{ message.time }}</div>
+                        </div>
                     </div>
                 </div>
-                <div class="message-wrapper">
-                  <div class="message user">
-                        <div class="message-text">Lorem, ipsum.</div>
-                        <div class="sent-time">12:45 AM</div>
-                    </div>
-                </div>
-                <div class="message-wrapper">
-                  <div class="message user">
-                        <div class="message-text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolorem, sit eum!</div>
-                        <div class="sent-time">12:45 AM</div>
-                    </div>
-                </div>
-                 <div class="message-wrapper">
-                    <div class="message guest">
-                        <div class="message-text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Nulla voluptas repudiandae harum necessitatibus, eum cupiditate consequatur, sit consectetur incidunt facere maiores pariatur soluta!</div>
-                        <div class="sent-time">12:45 AM</div>
-                    </div>
-                </div>
-                 <div class="message-wrapper">
-                    <div class="message guest">
-                        <div class="message-text">Lorem ipsum dolor sit.</div>
-                        <div class="sent-time">12:45 AM</div>
-                    </div>
-                </div>
-                 <div class="message-wrapper">
-                  <div class="message user">
-                        <div class="message-text">Lorem ipsum dolor sit amet consectetur adipisicing.</div>
-                        <div class="sent-time">12:45 AM</div>
-                    </div>
-                </div>
-                 <div class="message-wrapper">
-                  <div class="message user">
-                        <div class="message-text">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Odio fugiat quibusdam facilis voluptate repudiandae quisquam cupiditate, dolore nostrum maiores eligendi ea. Officia voluptate quam necessitatibus sequi aperiam ipsa voluptas a nobis porro officiis maxime possimus, molestiae iusto laudantium pariatur sunt non. Quam eligendi in deleniti ipsa amet facere at mollitia?</div>
-                        <div class="sent-time">12:45 AM</div>
-                    </div>
-                </div>
+                <chat-loader v-if="loading"/>
             </div>
             <div class="message-container">
                 <div class="send-container">
-                    <img src="../assets/send.svg" alt="send" class="send-button">
+                    <img src="../assets/send.svg" alt="send" @click="sendMessage($event)" class="send-button">
                 </div>
-                <textarea class="message-field" placeholder="Enter Message..."></textarea>
+                <textarea class="message-field" @keypress.enter="sendMessage($event)" v-model="msg" placeholder="Enter Message..."></textarea>
             </div>
         </div>
     </div>
 </template>
 <script>
     import io from 'socket.io-client';
+    import axios from 'axios';
+    import ChatLoader from '../components/ChatLoader.vue';
     let socket = io('https://ayocrypto-chat.herokuapp.com', {
         query: {
-            roomId: 'JS',
-            username: 'Meezy'
+            roomId: 'techtalks',
+            username: 'TeckTalks User'
         }
     });
     export default {
         name: 'Chat',
         data: function () {
             return {
-                textInput: null,
-                textOutput: []
+                msg: null,
+                loading: false,
             }
+        },
+        components: {
+            ChatLoader
         },
         methods: {
-            submitText: function (event) {
-                event.preventDefault();
-                socket.emit('send', this.textInput);
+            sendMessage(e) {
+                e.preventDefault();
+                if (this.msg){
+                    socket.emit('NEW_CHAT_MESSAGE_EVENT', {
+                        roomId: 'chatId',
+                        sender: this.$store.state.user.username ? this.$store.state.user.username : 'Anonymous',
+                        receiver: 'All',
+                        msg: this.msg
+                    });
+                    this.msg = null;
+                }
+            },
+            getTime(date) {
+                var hours = date.getHours();
+                var minutes = date.getMinutes();
+                var ampm = hours >= 12 ? 'pm' : 'am';
+                hours = hours % 12;
+                hours = hours ? hours : 12; // the hour '0' should be '12'
+                minutes = minutes < 10 ? '0'+minutes : minutes;
+                var strTime = hours + ':' + minutes + ' ' + ampm;
+                return strTime;
+            },
+            fetchOldMessages(){
+                axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.$store.state.token;
+                axios.get('/getMessages')
+                    .then(res => {
+                        this.loading = false;
+                        this.$store.dispatch('initMessages', res.data.data);
+                        setTimeout(() => {
+                            this.scrollToElement();
+                        }, 10);
+                    })
+                    .catch(err => {
+                        console.log(err)
+                    });
+            },
+            scrollToElement() {
+                const el = this.$el.querySelector('.messages');
+                if (el) {
+                    el.scrollTop = el.scrollHeight;
+                }
             }
         },
-        created: function () {
+        created() {
             socket.on('connect', () => {
                 console.log('Connected!');
             });
             socket.on('USER_JOIN_CHAT_EVENT', (text) => {
                 console.log(text)
             });
+            socket.on('NEW_CHAT_MESSAGE_EVENT', (data) => {
+                data.time = this.getTime(new Date);
+                console.log(data)
+                this.$store.dispatch('pushNewMessage', data)
+                setTimeout(() => {
+                    this.scrollToElement();
+                }, 10)
+            });
+            this.loading = true;
+            this.fetchOldMessages();
+        },
+        mounted() {
+            this.scrollToElement();
         }
     }
 </script>
@@ -114,11 +138,12 @@
         border-radius: 10px;
         padding: 10px;
         height: calc(100% - 120px);
-        overflow: auto;
+        overflow-x: hidden;
+        overflow-y: auto;
     }
     .message-wrapper{
         width: 100%;
-        margin: 20px 0;
+        margin: 5px 0;
     }
     .message{
         width: 450px;
@@ -144,6 +169,11 @@
     }
     .message-text{
         font-size: 13px;
+    }
+    .sender{
+        font-size: 12px;
+        font-style: italic;
+        font-weight: bold;
     }
     .sent-time{
         font-size: 9px;

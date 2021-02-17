@@ -77,7 +77,7 @@ export default {
                             .catch(err => {
                                 this.processing = false;
                                 this.formHasError = true;
-                                this.errorMessage = err.response.data.message ? err.response.data.message : 'An error occured';
+                                this.errorMessage = 'An error occured';
                                 this.serverErrorMessages = err.response.data.errors;
                             });
                     }
