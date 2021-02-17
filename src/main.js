@@ -8,7 +8,7 @@ import VueSkeletonLoader from 'skeleton-loader-vue';
 Vue.config.productionTip = false
 Vue.component('vue-skeleton-loader', VueSkeletonLoader);
 
-axios.defaults.baseURL = 'http://localhost:8000/api';
+axios.defaults.baseURL = 'https://techtalksapiapp.herokuapp.com/api';
 
 router.beforeEach((to, from, next) => {
   if (to.matched.some(record => record.meta.requiresAuth)) {
